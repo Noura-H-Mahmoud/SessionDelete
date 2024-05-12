@@ -54,6 +54,8 @@
 //     </tr>
 //     `);
 // }
+// array for data for update
+const data=[];
 const addRowToTable=(name,color,category,index)=>{
     const tbody=document.querySelector('.table tbody');
     tbody.insertAdjacentHTML('beforeend',`
@@ -62,9 +64,17 @@ const addRowToTable=(name,color,category,index)=>{
     <td>${name}</td>
     <td>${color}</td>
     <td>${category}</td>
-    <td><button onclick="deleteRow(event)" class="btn btn-danger delete-${index}">Delete</button></td>
+    <td>
+    <button onclick="deleteRow(event)" class="btn btn-danger delete-${index}">Delete</button>
+    <button data-index="${index}" onclick="upadteRow(event)" class="btn btn-warning">Update</button>
+    </td>
     </tr>
     `);
+    data.push({
+        name:name,
+        color:color,
+        category:category,
+    });
 }
 let index=0;
 const addNewRow=document.querySelector('.add-new');
@@ -101,3 +111,41 @@ nameInput.addEventListener('input',(event)=>{
 const deleteRow=(event)=>{
     event.target.parentElement.parentElement.remove();
 };
+
+let lastIndex=0;
+//function for update
+const upadteRow=(event)=>{
+    const dataIndex= event.target.dataset.index;
+    const todoItem= data[dataIndex];
+    lastIndex=dataIndex;
+    const save=document.querySelector('.save-update');
+    save.classList.remove('d-none');
+    const nameInput= document.querySelector('.name');
+    const colorInput= document.querySelector('.color');
+    const categoryInput=  document.querySelector('.category');
+    nameInput.value= todoItem.name;
+    colorInput.value= todoItem.color;
+    categoryInput.value= todoItem.category;
+    save.addEventListener('click',()=>{
+        const nameInput= document.querySelector('.name');
+        const colorInput= document.querySelector('.color');
+        const categoryInput=  document.querySelector('.category');
+        const tbody=document.querySelector('tbody');
+        tbody.children[lastIndex].innerHTML=`<th scope="row">${lastIndex}</th>
+        <td>${nameInput.value}</td>
+        <td>${colorInput.value}</td>
+        <td>${categoryInput.value}</td>
+        <td>
+        <button onclick="deleteRow(event)" class="btn btn-danger delete-${lastIndex}">Delete</button>
+        <button data-index="${lastIndex}" onclick="upadteRow(event)" class="btn btn-warning">Update</button>
+        </td>`
+        //for second update
+        data[lastIndex]={
+            name:nameInput.value,
+            color:colorInput.value,
+            category:categoryInput.value,
+        }
+        save.classList.add('d-none');
+        
+    });
+}
