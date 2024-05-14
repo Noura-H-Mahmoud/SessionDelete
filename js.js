@@ -55,8 +55,10 @@
 //     `);
 // }
 // array for data for update
-const data=[];
-const addRowToTable=(name,color,category,index)=>{
+// const data=[];
+const data=JSON.parse(localStorage.getItem('todo')) ||[]; // if it was undefined or null or false put the empty array 
+// function for load data
+const loadDataToTable=(name,color,category,index)=>{
     const tbody=document.querySelector('.table tbody');
     tbody.insertAdjacentHTML('beforeend',`
     <tr>
@@ -65,8 +67,28 @@ const addRowToTable=(name,color,category,index)=>{
     <td>${color}</td>
     <td>${category}</td>
     <td>
-    <button onclick="deleteRow(event)" class="btn btn-danger delete-${index}">Delete</button>
-    <button data-index="${index}" onclick="upadteRow(event)" class="btn btn-warning">Update</button>
+    <button data-index=${index} onclick="deleteRow(event)" class="btn btn-danger delete-${index}">Delete</button>
+    <button data-index=${index} onclick="upadteRow(event)" class="btn btn-warning">Update</button>
+    </td>
+    </tr>
+    `);
+}
+data.forEach((item,indexItem) => {
+    loadDataToTable(item.name,item.color,item.category,indexItem);
+});
+
+const tbody=document.querySelector('.table tbody');
+const addRowToTable=(name,color,category,index)=>{
+    // const tbody=document.querySelector('.table tbody');
+    tbody.insertAdjacentHTML('beforeend',`
+    <tr>
+    <th scope="row">${index}</th>
+    <td>${name}</td>
+    <td>${color}</td>
+    <td>${category}</td>
+    <td>
+    <button data-index=${index} onclick="deleteRow(event)" class="btn btn-danger delete-${index}">Delete</button>
+    <button data-index=${index} onclick="upadteRow(event)" class="btn btn-warning">Update</button>
     </td>
     </tr>
     `);
@@ -75,8 +97,12 @@ const addRowToTable=(name,color,category,index)=>{
         color:color,
         category:category,
     });
+    // for save data in local storage
+    localStorage.setItem('todo',JSON.stringify(data));
 }
-let index=0;
+
+// let index=0;
+let index=tbody.children.length; // بلش من عدد الاولاد الموجودين 
 const addNewRow=document.querySelector('.add-new');
 // method 1
 //addNewRow.addEventListener('click',addRowToTable);
@@ -110,15 +136,23 @@ nameInput.addEventListener('input',(event)=>{
 // function for delete
 const deleteRow=(event)=>{
     event.target.parentElement.parentElement.remove();
+    const index=event.target.dataset.index;
+    delete data[index];
+    const newData=data.filter(item=>item);
+    // const newData=data.filter(function(item){
+    //     return item;
+    // }); 
+    console.log(newData);
+    localStorage.setItem('todo',JSON.stringify(newData));
 };
 
 let lastIndex=0;
+const save=document.querySelector('.save-update');
 //function for update
 const upadteRow=(event)=>{
     const dataIndex= event.target.dataset.index;
     const todoItem= data[dataIndex];
     lastIndex=dataIndex;
-    const save=document.querySelector('.save-update');
     save.classList.remove('d-none');
     const nameInput= document.querySelector('.name');
     const colorInput= document.querySelector('.color');
@@ -126,26 +160,30 @@ const upadteRow=(event)=>{
     nameInput.value= todoItem.name;
     colorInput.value= todoItem.color;
     categoryInput.value= todoItem.category;
-    save.addEventListener('click',()=>{
-        const nameInput= document.querySelector('.name');
-        const colorInput= document.querySelector('.color');
-        const categoryInput=  document.querySelector('.category');
-        const tbody=document.querySelector('tbody');
-        tbody.children[lastIndex].innerHTML=`<th scope="row">${lastIndex}</th>
-        <td>${nameInput.value}</td>
-        <td>${colorInput.value}</td>
-        <td>${categoryInput.value}</td>
-        <td>
-        <button onclick="deleteRow(event)" class="btn btn-danger delete-${lastIndex}">Delete</button>
-        <button data-index="${lastIndex}" onclick="upadteRow(event)" class="btn btn-warning">Update</button>
-        </td>`
-        //for second update
-        data[lastIndex]={
-            name:nameInput.value,
-            color:colorInput.value,
-            category:categoryInput.value,
-        }
-        save.classList.add('d-none');
-        
-    });
+   
 }
+save.addEventListener('click',()=>{
+    const nameInput= document.querySelector('.name');
+    const colorInput= document.querySelector('.color');
+    const categoryInput=  document.querySelector('.category');
+    const tbody=document.querySelector('tbody');
+    tbody.children[lastIndex].innerHTML=`<th scope="row">${lastIndex}</th>
+    <td>${nameInput.value}</td>
+    <td>${colorInput.value}</td>
+    <td>${categoryInput.value}</td>
+    <td>
+    <button onclick="deleteRow(event)" class="btn btn-danger delete-${lastIndex}">Delete</button>
+    <button data-index="${lastIndex}" onclick="upadteRow(event)" class="btn btn-warning">Update</button>
+    </td>`
+    //for second update
+    data[lastIndex]={
+        name:nameInput.value,
+        color:colorInput.value,
+        category:categoryInput.value,
+    }
+    save.classList.add('d-none');
+    nameInput.value='';
+    colorInput.value='';
+    categoryInput.value='';
+    localStorage.setItem('todo',JSON.stringify(data));
+});
