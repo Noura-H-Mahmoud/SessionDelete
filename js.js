@@ -187,3 +187,31 @@ save.addEventListener('click',()=>{
     categoryInput.value='';
     localStorage.setItem('todo',JSON.stringify(data));
 });
+
+// for search
+const serachInput=document.querySelector('.search');
+serachInput.addEventListener('input',(event)=>{
+    tbody.innerHTML = '';
+    const nameSearch=event.target.value;
+    const dataSearch=data.filter(item=>{
+        return item.name.includes(nameSearch);
+    });
+    const loadDataToTable=(name,color,category,index)=>{
+        const tbody=document.querySelector('.table tbody');
+        tbody.insertAdjacentHTML('beforeend',`
+        <tr>
+        <th scope="row">${index}</th>
+        <td>${name}</td>
+        <td>${color}</td>
+        <td>${category}</td>
+        <td>
+        <button data-index=${index} onclick="deleteRow(event)" class="btn btn-danger delete-${index}">Delete</button>
+        <button data-index=${index} onclick="upadteRow(event)" class="btn btn-warning">Update</button>
+        </td>
+        </tr>
+        `);
+    }
+    dataSearch.forEach((item,indexItem) => {
+        loadDataToTable(item.name,item.color,item.category,indexItem);
+    });
+});
